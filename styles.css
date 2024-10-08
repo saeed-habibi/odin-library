@@ -19,7 +19,8 @@ ul {
   list-style: none;
 }
 
-button:hover {
+button:hover,
+img:hover {
   cursor: pointer;
 }
 
@@ -69,7 +70,7 @@ body {
   gap: 10px;
 }
 
-.card-buttons button {
+.card-buttons img {
   padding: 5px;
   border: none;
   border-radius: 50%;

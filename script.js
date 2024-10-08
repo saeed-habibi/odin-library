@@ -1,5 +1,11 @@
 // HTML Handles
 const cardsBox = document.querySelector(".cards-box");
+const form = document.querySelector(".form");
+const inputTitle = document.querySelector("#input-title");
+const inputAuthor = document.querySelector("#input-author");
+const inputPages = document.querySelector("#input-pages");
+const inputYes = document.querySelector("input[value='yes']");
+const inputNo = document.querySelector("input[value='no']");
 
 const library = [];
 
@@ -9,8 +15,6 @@ function Book(title, author, pages, read) {
   this.pages = pages;
   this.read = read;
 }
-
-function addBook(book) {}
 
 function makeCardInfo(book) {
   const cardInfo = document.createElement("div");
@@ -40,31 +44,27 @@ function makeCardButtons() {
   const cardButtons = document.createElement("div");
   cardButtons.classList.add("card-buttons");
 
-  const readButton = document.createElement("button");
-  const deleteButton = document.createElement("button");
+  const readButton = document.createElement("img");
+  const deleteButton = document.createElement("img");
   readButton.classList.add("read-button");
   deleteButton.classList.add("delete-button");
-  readButton.setAttribute("type", "button");
-  deleteButton.setAttribute("type", "button");
 
-  const readButtonImg = document.createElement("img");
-  const deleteButtonImg = document.createElement("img");
+  readButton.setAttribute("src", "assets/done.svg");
+  deleteButton.setAttribute("src", "assets/delete.svg");
+  readButton.setAttribute("alt", "done icon");
+  deleteButton.setAttribute("alt", "trash icon");
 
-  readButtonImg.setAttribute("src", "assets/done.svg");
-  deleteButtonImg.setAttribute("src", "assets/delete.svg");
-  readButtonImg.setAttribute("alt", "done icon");
-  deleteButtonImg.setAttribute("alt", "trash icon");
-
-  readButton.append(readButtonImg);
-  deleteButton.append(deleteButtonImg);
   cardButtons.append(readButton, deleteButton);
 
   return cardButtons;
 }
 
-function addCard(book) {
+function addCard() {
+  const bookIndex = library.length - 1;
+  const book = library[bookIndex];
   const card = document.createElement("div");
   card.classList.add("card");
+  card.setAttribute("data-index", bookIndex);
 
   const cardInfo = makeCardInfo(book);
   const cardButtons = makeCardButtons();
@@ -72,3 +72,64 @@ function addCard(book) {
   card.append(cardInfo, cardButtons);
   cardsBox.append(card);
 }
+
+function addBook() {
+  const title = inputTitle.value;
+  const author = inputAuthor.value;
+  const pages = Number(inputPages.value);
+  const read = inputYes.checked;
+
+  const newBook = new Book(title, author, pages, read);
+  library.push(newBook);
+}
+
+function clearInputs() {
+  inputTitle.value = "";
+  inputAuthor.value = "";
+  inputPages.value = "";
+  inputNo.checked = true;
+  inputTitle.focus();
+}
+
+function toggleRead(card) {
+  const index = card.getAttribute("data-index");
+  library[index].read = !library[index].read;
+
+  card.querySelector(".card-read").textContent = `Read: 
+  ${library[index].read ? "Yes" : "No"}`;
+}
+
+function deleteCard(card) {
+  const index = Number(card.getAttribute("data-index"));
+
+  // if there are any cards after this one, loop over them and decrement their index number
+  // so the new index numbers will match the new index numbers in the library array
+  for (let i = index + 1; i < cardsBox.childElementCount; i++) {
+    const card = document.querySelector(`.card[data-index="${i}"]`);
+    card.setAttribute("data-index", i - 1);
+  }
+
+  library.splice(index, 1);
+  card.remove();
+}
+
+// Event Listeners
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  addBook();
+  clearInputs();
+  addCard();
+});
+
+cardsBox.addEventListener("click", (e) => {
+  if (e.target.classList.contains("read-button")) {
+    toggleRead(e.target.closest(".card"));
+  }
+  if (e.target.classList.contains("delete-button")) {
+    deleteCard(e.target.closest(".card"));
+  }
+});
+
+// Run at page load
+clearInputs();
